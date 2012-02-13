@@ -1,0 +1,7 @@
+HTML5Base is the most recent iteration of my starting point for new HTML projects. I've taken my favorite ideas and code snippets from the following projects:
+
+HTML5 Boilerplate (http://html5boilerplate.com/)
+Normalize.css (http://necolas.github.com/normalize.css/)
+The Semantic Grid System (http://semantic.gs/)
+
+It has a grid and is based on LESS. Have fun!
