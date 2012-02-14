@@ -132,7 +132,9 @@
 			var that = this
 				,calendarRows = [];
 
-			console.log(this.dateRows);
+			console.log('Date rows: ', $('.dateRow'));
+
+			$('.dateRow').remove();
 
 			for ( var i = 0; i < 6; i++) {
 				
