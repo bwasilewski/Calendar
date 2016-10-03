@@ -1,11 +1,3 @@
-/*
- *  jquery-calendar - v1.0.0
- *  A simple jquery Calendar plugin.
- *  http://benwas.com
- *
- *  Made by Benjamin Wasilewski
- *  Under MIT License
- */
 // the semi-colon before function invocation is a safety net against concatenated
 // scripts and/or other plugins which may not be closed properly.
 ;( function( $, window, document, undefined ) {
@@ -20,8 +12,6 @@
 		// window and document are passed through as local variables rather than global
 		// as this (slightly) quickens the resolution process and can be more efficiently
 		// minified (especially when both are regularly referenced in your plugin).
-
-		console.log('fart');
 
 		// Create the defaults once
 		var pluginName = 'Calendar'
@@ -163,14 +153,14 @@
 	                that.updateCalendar(that.element, nextMonth, nextYear);
 	            });
 
-	            // $([$.fn.calendar.monthSelector, $.fn.calendar.yearSelector]).each(function (ind, val) {
-	            //     val.bind('change', function (ev) {
-	            //         var m = parseFloat($.fn.calendar.monthSelector.find('option:selected').attr('value'));
-	            //         var y = parseFloat($.fn.calendar.yearSelector.find('option:selected').attr('value'));
+	            $([this.monthSelector, this.yearSelector]).each(function (ind, val) {
+	                val.bind('change', function () {
+	                    var m = parseFloat(that.monthSelector.find('option:selected').attr('value'));
+	                    var y = parseFloat(that.yearSelector.find('option:selected').attr('value'));
 
-	            //         $.fn.calendar.updateCalendar(context, m, y);
-	            //     });
-	            // });
+	                    that.updateCalendar(this.element, m, y);
+	                });
+	            });
 			},
 			drawCalendar: function () {
 				var that = this
