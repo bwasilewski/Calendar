@@ -8,9 +8,17 @@
 	</head>
 	<body>
 		<div id="element"></div>
+		<div id="element-2"></div>
 		<script>
 			$( function() {
 				$( "#element" ).Calendar( {
+					message: 'Message override!',
+			        title: 'jQuery Calendar',
+			        previous: '#apervita-previous',
+			        next: '#apervita-next'
+				} );
+
+				$( "#element-2" ).Calendar( {
 					message: 'Message override!',
 			        title: 'jQuery Calendar',
 			        previous: '#apervita-previous',
