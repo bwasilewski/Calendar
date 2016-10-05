@@ -98,12 +98,6 @@
 		        this.year = this.calendarDate.getFullYear();
 
 		        this.container = $('<div />');
-		        this.currentLabel = $('<p />', {
-		            'class': 'current-label'
-		        });
-		        this.displayLabel = $('<p />', {
-		            'class': 'display-label'
-		        });
 		        this.calendarHeader = $('<thead />', this.settings.calendarHeaderAttributes)
 		            .html('<tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr>');
 		        this.selectors = $('<form />',
@@ -127,8 +121,6 @@
 	            this.container.attr(this.settings.containerAttrs)
 	                .appendTo(this.element);
 
-	            this.currentLabel.appendTo(this.container).text('Current Label');
-	            this.displayLabel.appendTo(this.container).text('Display Label');
 	            this.previousButton.appendTo(this.container);
 	            this.selectors.appendTo(this.container);
 	            this.monthSelector.appendTo(this.selectors);
@@ -141,7 +133,6 @@
 
 	            this.drawCalendar();
 	            this.populateSelectors();
-	            // this.updateHeaders();
 	            this.selectDate(this.settings.selectedDate);
 	            this.bindEvents();
 			},
