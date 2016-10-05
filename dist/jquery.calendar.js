@@ -109,7 +109,7 @@
 		        this.table = $('<table />', this.settings.tableAttributes);
 		        this.row = $('<tr />', this.settings.rowAttributes);
 		        this.rows = [];
-		        this.cell = $('<td />', this.settings.cellAttributes);
+		        this.cell = $('<td />', this.settings.cellAttributes).html('<span></span>');
 		        this.textfield = $('<input />', this.settings.textFieldAttributes);
 
 		        this.nextButton = $('<button />', {
@@ -133,7 +133,6 @@
 	            this.calendarHeader.appendTo(this.table);
 	            this.textfield.appendTo(this.container);
 
-	            this.drawCalendar();
 	            this.populateSelectors();
 	            this.selectDate(this.settings.selectedDate);
 	            this.bindEvents();
@@ -149,7 +148,7 @@
 	            this.bindCellEvents();
 			},
 			bindCellEvents: function () {
-				$(this.cells).unbind('click');
+				$(this.cells, this.element).unbind('click');
 				$(this.cells, this.element).bind('click', {context: this}, this.handleCellClick);
 			},
 			handleNextBtn: function (ev) {
@@ -188,19 +187,19 @@
             	that.settings.onCellClick(ev);
 			},
 			drawCalendar: function () {
-				var that = this
-					,calendarRows = [];
+				var that = this;
 
 				this.cells = [];
+				this.rows = [];
 
-		        $('.' + this.settings.rowAttributes.class, this.element).remove();
+				this.table.find('tr').remove();
 
 		        // draw six rows
 		        for ( var i = 0; i < 6; i++) {
-		            calendarRows.push(this.row.clone().appendTo(this.table));
+		            this.rows.push(this.row.clone().appendTo(this.table));
 		        }
 
-		        $.each(calendarRows, function (ind, val) {
+		        $.each(this.rows, function (ind, val) {
 		            for ( var n = 0; n < 7; n++ ) {
 		                var newCell = that.cell.clone().appendTo(val);
 		                that.cells.push(newCell[0]);
@@ -217,7 +216,8 @@
 		            ,lastYear = ( this.month > 0 ) ? this.year : this.year - 1			// the previous year
 		            ,lastMonthLength = this.daysInMonth(lastMonth, lastYear)			// number of days in the previous month
 		            ,startingDate = 0	
-		            ,cells = $('.' + this.settings.cellAttributes.class, this.element)	
+		            ,cells = $(this.cells, this.element)	
+		            ,rows = $(this.rows, this.element)
 		            ,cellSize = cells.length
 		            ,leftoverCells = 0
 		            ,that = this;
@@ -238,7 +238,7 @@
 		                date: i
 		                ,month: that.month - 1
 		                ,year: ( that.month > 0 ) ? that.year : that.year - 1
-		                ,className: 'prevDate'
+		                ,className: 'calendar-previous-date'
 		            });
 		            startingDate++;
 		        }
@@ -248,7 +248,7 @@
 		                date: n
 		                ,month: that.month
 		                ,year: this.year
-		                ,className: 'currentDate'
+		                ,className: 'calendar-current-date'
 		            });
 		        }
 
@@ -259,23 +259,40 @@
 		                date: x
 		                ,month: that.month + 1
 		                ,year: ( that.month < 11 ) ? that.year : that.year + 1
-		                ,className: 'postDate'
+		                ,className: 'calendar-post-date'
 		            });
 		        }
 
-		        // TODO: make this dynamic
 		        $.each(cells, function (ind, val) {
 		        	var cell = $(val)
 		        		,cellData = dateArray[ind];
 
 		        	cell.attr( 'class', that.settings.cellAttributes.class + ' ' + cellData.className )
-		        		.html(cellData.date)
+		        		.html('<span>' + cellData.date + '</span>')
 		        		.attr({
 		        			'data-date': cellData.date,
 		        			'data-month': cellData.month,
 		        			'data-year': cellData.year
 		        		})
 		        		.data(cellData);
+		        });
+
+		        $.each(rows, function (ind, val) {
+		        	var rowCells = $(val).find('td')
+		        		,currentCells = 0;
+
+		        	$.each(rowCells, function (index, value) {
+
+		        		if ( $(value).hasClass('calendar-current-date') ) {
+		        			currentCells++;
+		        		}
+		        	});
+
+		        	if ( currentCells === 0 ) {
+		        		$(val).addClass('calendar-empty-row');
+		        	} else {
+		        		// $(val).removeClass('calendar-empty-row');
+		        	}
 		        });
 			},
 			getFirstDay: function (m, y) {
