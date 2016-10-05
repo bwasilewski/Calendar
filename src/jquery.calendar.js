@@ -39,6 +39,7 @@
 		        },
 		        'nextMonthClassName': 'next',
 		        'nextMonthSelector': '.next',
+		        'nextButtonText': 'Next',
 		        'onCellClick': function () { },
 		        'onNextMonthClick': function () { },
 		        'onPreviousMonthClick': function () { },
@@ -46,6 +47,7 @@
 		        // 'onYearSelect': function () { },
 		        'previousMonthClassName': 'prev',
 		        'previousMonthSelector': '.prev',
+		        'previousButtonText': 'Previous',
 		        'rowAttributes': {
 		            'class': 'calendar-row'
 		        },
@@ -104,11 +106,11 @@
 
 		        this.nextButton = $('<button />', {
 		            'class': that.settings.nextMonthClassName
-		        }).text('Next');
+		        }).html(that.settings.nextButtonText);
 
 		        this.previousButton = $('<button />', {
 		            'class': that.settings.previousMonthClassName
-		        }).text('Previous');
+		        }).html(that.settings.previousButtonText);
 
 	            this.container.attr(this.settings.containerAttrs)
 	                .appendTo(this.element);
@@ -139,6 +141,7 @@
 	            this.bindCellEvents();
 			},
 			bindCellEvents: function () {
+				$(this.cells).unbind('click');
 				$(this.cells, this.element).bind('click', {context: this}, this.handleCellClick);
 			},
 			handleNextBtn: function (ev) {
