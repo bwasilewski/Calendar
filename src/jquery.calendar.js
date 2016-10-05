@@ -16,17 +16,14 @@
 		// Create the defaults once
 		var pluginName = 'Calendar'
 			,calendarDate = new Date()
-		    // ,todaysDate = new Date()
-		    ,dayArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+		    ,todaysDate = new Date()
+		    // ,dayArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 		    ,monthArray = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 		    // ,date = calendarDate.getDate()
 		    // ,day = calendarDate.getDay()
 		    // ,month = calendarDate.getMonth()
 		    // ,year = calendarDate.getFullYear()
 			,defaults = {
-				'calendarAttrs': {
-		            'class': 'apervita-calendar'
-		        },
 		        'calendarHeaderAttributes': {
 		            'class': 'dayLabels'
 		        },
@@ -34,7 +31,7 @@
 		            'class': 'dateCell'
 		        },
 		        'containerAttrs': {
-		            'class': 'apervita-calendar-container'
+		            'class': 'calendar-container'
 		        },
 		        'message': 'New jQuery Plugin!',
 		        'monthSelectorAttributes': {
@@ -42,15 +39,24 @@
 		        },
 		        'nextMonthClassName': 'next',
 		        'nextMonthSelector': '.next',
+		        'onCellClick': function () { },
+		        'onNextMonthClick': function () { },
+		        'onPreviousMonthClick': function () { },
+		        // 'onMonthSelect': function () { },
+		        // 'onYearSelect': function () { },
 		        'previousMonthClassName': 'prev',
 		        'previousMonthSelector': '.prev',
 		        'rowAttributes': {
-		            'class': 'dateRow'
+		            'class': 'calendar-row'
 		        },
+		        'selectedDate': todaysDate,
 		        'tableAttributes': {
-		            'class': 'date-table'
+		            'class': 'calendar-table'
 		        },
-		        'title': 'jQuery Calendar by Ben Wasilewski',
+		        'textFieldAttributes': {
+		        	'type': 'hidden',
+		        	'class': 'calendar-date-field'
+		        },
 		        'yearSelectorAttributes': {
 		            'class': 'year-selector'
 		        }
@@ -84,9 +90,6 @@
 		        this.year = this.calendarDate.getFullYear();
 
 		        this.container = $('<div />');
-		        this.titleLabel = $('<p />', {
-		            'class': 'calendar-title'
-		        });
 		        this.currentLabel = $('<p />', {
 		            'class': 'current-label'
 		        });
@@ -103,6 +106,7 @@
 		        this.row = $('<tr />', this.settings.rowAttributes);
 		        this.rows = [];
 		        this.cell = $('<td />', this.settings.cellAttributes);
+		        this.textfield = $('<input />', this.settings.textFieldAttributes);
 
 		        this.nextButton = $('<button />', {
 		            'class': that.settings.nextMonthClassName
@@ -115,7 +119,6 @@
 	            this.container.attr(this.settings.containerAttrs)
 	                .appendTo(this.element);
 
-	            this.titleLabel.appendTo(this.container).text(this.settings.title);
 	            this.currentLabel.appendTo(this.container).text('Current Label');
 	            this.displayLabel.appendTo(this.container).text('Display Label');
 	            this.previousButton.appendTo(this.container);
@@ -124,53 +127,71 @@
 	            this.yearSelector.appendTo(this.selectors);
 	            this.nextButton.appendTo(this.container);
 
-	            this.table.attr(this.settings.calendarAttrs)
-	                .appendTo(this.container);
-	            this.calendarHeader.attr(this.settings.calendarHeaderAttributes)
-	            	.appendTo(this.table);
+	            this.table.appendTo(this.container);
+	            this.calendarHeader.appendTo(this.table);
+	            this.textfield.appendTo(this.container);
 
 	            this.drawCalendar();
 	            this.populateSelectors();
+	            // this.updateHeaders();
+	            this.selectDate(this.settings.selectedDate);
+	            this.bindEvents();
+			},
+			bindEvents: function () {
+				var that = this;
 
-	            // Event Handlers
-	            this.nextButton.bind('click', function () {
-	                var nextMonth = ( that.month === 11 ) ? 0 : that.month + 1
-	                    ,nextYear = ( that.month === 11 ) ? that.year + 1 : that.year;
-
-	                console.log('Month: ', that.month);
-	                console.log('Next Month: ', nextMonth);
-
-	                that.updateCalendar(that.element, nextMonth, nextYear);
-	            });
-
-	            this.previousButton.bind('click', function () {
-	                var nextMonth = ( that.month === 0 ) ? 11 : that.month - 1
-	                    ,nextYear = ( that.month === 0 ) ? that.year - 1 : that.year;
-
-                    console.log('Month: ', that.month);
-	                console.log('Next Month: ', nextMonth);
-
-	                that.updateCalendar(that.element, nextMonth, nextYear);
-	            });
-
+				this.nextButton.bind('click', {context: this}, this.handleNextBtn);
+	            this.previousButton.bind('click', {context: this}, this.handlePreviousBtn);
 	            $([this.monthSelector, this.yearSelector]).each(function (ind, val) {
-	                val.bind('change', function () {
-	                    var m = parseFloat(that.monthSelector.find('option:selected').attr('value'));
-	                    var y = parseFloat(that.yearSelector.find('option:selected').attr('value'));
-
-	                    that.updateCalendar(this.element, m, y);
-	                });
+	                val.bind('change', {context: that}, that.handleSelectors);
 	            });
+	            this.bindCellEvents();
+			},
+			bindCellEvents: function () {
+				$(this.cells, this.element).bind('click', {context: this}, this.handleCellClick);
+			},
+			handleNextBtn: function (ev) {
+				var that = ev.data.context
+					,nextMonth = ( that.month === 11 ) ? 0 : that.month + 1
+                    ,nextYear = ( that.month === 11 ) ? that.year + 1 : that.year;
+
+                that.updateCalendar(that.element, nextMonth, nextYear);
+                that.settings.onNextMonthClick(ev);
+			},
+			handlePreviousBtn: function (ev) {
+				var that = ev.data.context
+					,nextMonth = ( that.month === 0 ) ? 11 : that.month - 1
+                    ,nextYear = ( that.month === 0 ) ? that.year - 1 : that.year;
+
+                that.updateCalendar(that.element, nextMonth, nextYear);
+                that.settings.onPreviousMonthClick(ev);
+			},
+			handleSelectors: function (ev) {
+				var that = ev.data.context
+					,m = parseFloat(that.monthSelector.find('option:selected').attr('value'))
+                	,y = parseFloat(that.yearSelector.find('option:selected').attr('value'));
+
+                that.updateCalendar(that.element, m, y);
+			},
+			handleCellClick: function (ev) {
+				var that = ev.data.context;
+
+            	$.each(that.cells, function (ind, val) {
+            		$(val).removeClass('selected');
+            	});
+
+            	$(this).addClass('selected');
+            	that.selectedDate = $(this);
+            	that.updateTextField( $(this).data() );
+            	that.settings.onCellClick(ev);
 			},
 			drawCalendar: function () {
 				var that = this
 					,calendarRows = [];
 
-		        // // remove all rows
-		        // $('.dateRow', calendarTable).remove();
-		        // $('thead', calendarTable).remove();
+				this.cells = [];
 
-		        $('.dateRow', this.table).remove();
+		        $('.' + this.settings.rowAttributes.class, this.element).remove();
 
 		        // draw six rows
 		        for ( var i = 0; i < 6; i++) {
@@ -179,29 +200,42 @@
 
 		        $.each(calendarRows, function (ind, val) {
 		            for ( var n = 0; n < 7; n++ ) {
-		                that.cell.clone().appendTo(val);
+		                var newCell = that.cell.clone().appendTo(val);
+		                that.cells.push(newCell[0]);
 		            }
 		        });
 
 		        this.createDateArray();
-		        // updateHeaders(el);
 			},
 			createDateArray: function () {
 				var dateArray = []
-		            ,firstDay = this.getFirstDay(this.month, this.year)
-		            ,thisMonthLength = this.daysInMonth(this.month, this.year)
-		            ,lastMonth = ( this.month > 0 ) ? this.month - 1 : 11
-		            ,lastYear = ( this.month > 0 ) ? this.year : this.year - 1
-		            ,lastMonthLength = this.daysInMonth(lastMonth, lastYear)
-		            ,startingDate = 0
-		            ,cellSize = $('.dateCell').length
-		            ,leftoverCells = 0;
+		            ,firstDay = this.getFirstDay(this.month, this.year) 				// the first day of the week in the new month
+		            ,thisMonthLength = this.daysInMonth(this.month, this.year)			// number of days in the current month
+		            ,lastMonth = ( this.month > 0 ) ? this.month - 1 : 11				// the previous month in integer format
+		            ,lastYear = ( this.month > 0 ) ? this.year : this.year - 1			// the previous year
+		            ,lastMonthLength = this.daysInMonth(lastMonth, lastYear)			// number of days in the previous month
+		            ,startingDate = 0	
+		            ,cells = $('.' + this.settings.cellAttributes.class, this.element)	
+		            ,cellSize = cells.length
+		            ,leftoverCells = 0
+		            ,that = this;
+				
+				// if the first day of the week in the new month is Sunday
+				if ( firstDay === 0 ) {
+					// the date to start with is last month's length minus 6
+					startingDate = lastMonthLength - 6;
+				} else {
+					// the date to start with is 
+					startingDate = lastMonthLength - ( firstDay - 1 );
+				}
 
 		        startingDate = ( firstDay === 0 ) ? lastMonthLength - 6 : lastMonthLength - ( firstDay - 1 );
 
 		        for ( var i = startingDate; i <= lastMonthLength; i++ ) {
 		            dateArray.push({
 		                date: i
+		                ,month: that.month - 1
+		                ,year: ( that.month > 0 ) ? that.year : that.year - 1
 		                ,className: 'prevDate'
 		            });
 		            startingDate++;
@@ -210,6 +244,8 @@
 		        for ( var n = 1; n <= thisMonthLength; n++ ) {
 		            dateArray.push({
 		                date: n
+		                ,month: that.month
+		                ,year: this.year
 		                ,className: 'currentDate'
 		            });
 		        }
@@ -219,13 +255,25 @@
 		        for (var x = 1; x <= leftoverCells; x++) {
 		            dateArray.push({
 		                date: x
+		                ,month: that.month + 1
+		                ,year: ( that.month < 11 ) ? that.year : that.year + 1
 		                ,className: 'postDate'
 		            });
 		        }
 
 		        // TODO: make this dynamic
-		        $.each($('.dateCell', this.table), function (ind, val) {
-		            $(val).addClass(dateArray[ind].className).html(dateArray[ind].date);
+		        $.each(cells, function (ind, val) {
+		        	var cell = $(val)
+		        		,cellData = dateArray[ind];
+
+		        	cell.attr( 'class', that.settings.cellAttributes.class + ' ' + cellData.className )
+		        		.html(cellData.date)
+		        		.attr({
+		        			'data-date': cellData.date,
+		        			'data-month': cellData.month,
+		        			'data-year': cellData.year
+		        		})
+		        		.data(cellData);
 		        });
 			},
 			getFirstDay: function (m, y) {
@@ -265,26 +313,39 @@
 		        this.yearSelector.val(y);
 			},
 			updateCalendar: function (context, m, y) {
+				this.month = m;
+				this.year = y;
+
 		        calendarDate.setMonth(m);
 		        calendarDate.setFullYear(y);
 
-		        this.month = calendarDate.getMonth();
-		        this.year = calendarDate.getFullYear();
-
-		        this.updateHeaders(context);
-
-		        this.drawCalendar(context, this.month, this.year);
+		        this.drawCalendar(context, m, y);
 		        this.updateSelectors(m, y);
-			},
-			updateHeaders: function () {
-				this.currentLabel.html( dayArray[this.todaysDate.getDay()] + ', ' + monthArray[this.todaysDate.getMonth()] + ' ' + this.getOrdinal(this.todaysDate.getDate()) + ', ' + this.todaysDate.getFullYear() );
-        		this.displayLabel.html( monthArray[this.month] + ' ' + this.year );
+		        this.bindCellEvents();
 			},
 			getOrdinal: function (n) {
 				var s = ['th','st','nd','rd']
 		            ,v = n % 100;
 
 		        return n + ( s[(v-20)%10] || s[v] || s[0] );
+			},
+			getSelectedDate: function () {
+				return {
+					'el': this.selectedDate
+				};
+			},
+			selectDate: function (date) {
+				var dateDate = date.getDate();
+				var dateMonth = date.getMonth();
+				var dateYear = date.getFullYear();
+				var targetCell;
+
+				this.updateCalendar(this.element, dateMonth, dateYear);
+				targetCell = $('td[data-date="' + dateDate + '"][data-month="' + dateMonth + '"]', this.element);
+				targetCell.click();
+			},
+			updateTextField: function (data) {
+				this.textfield.val(data.month + '/' + data.date + '/' + data.year);
 			}
 		} );
 
