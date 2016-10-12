@@ -17,7 +17,11 @@
 		<div id="element-2"></div>
 		<script>
 			$( function() {
-				$( "#element" ).Calendar();
+				$( "#element" ).Calendar({
+					onCellClick: function (ev) {
+						console.log('test: ', ev);
+					}
+				});
 
 				// $( "#element-2" ).Calendar();
 			} );

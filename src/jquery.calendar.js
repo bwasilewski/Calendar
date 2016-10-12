@@ -353,7 +353,7 @@
 
 				this.updateCalendar(this.element, dateMonth, dateYear);
 				targetCell = $('td[data-date="' + dateDate + '"][data-month="' + dateMonth + '"]', this.element);
-				targetCell.click();
+				targetCell[0].click();
 			},
 			updateTextField: function (data) {
 				this.textfield.val(data.month + '/' + data.date + '/' + data.year);
