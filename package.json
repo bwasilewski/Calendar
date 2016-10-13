@@ -43,9 +43,10 @@
     "grunt-karma": "^0.12.0",
     "jscs": "^2.10.1",
     "karma": "^0.13.21",
-    "karma-firefox-launcher": "^0.1.6",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-firefox-launcher": "^1.0.0",
     "karma-phantomjs-launcher": "^0.2.1",
-    "karma-qunit": "^0.1.5",
+    "karma-qunit": "^1.2.1",
     "phantomjs": "^1.9.18",
     "qunitjs": "^1.19.0"
   },

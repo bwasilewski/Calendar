@@ -21,37 +21,83 @@
 	} );
 
 	QUnit.test( "is inside jQuery library", function( assert ) {
-
-		assert.equal( typeof $.fn.defaultPluginName, "function", "has function inside jquery.fn" );
-		assert.equal( typeof $fixture.defaultPluginName, "function", "another way to test it" );
+		assert.equal( typeof $.fn.Calendar, "function", "has function inside jquery.fn" );
+		assert.equal( typeof $fixture.Calendar, "function", "another way to test it" );
 	} );
 
 	QUnit.test( "returns jQuery functions after called (chaining)", function( assert ) {
 		assert.equal(
-			typeof $fixture.defaultPluginName().on,
+			typeof $fixture.Calendar().on,
 			"function",
 			"'on' function must exist after plugin call" );
 	} );
 
 	QUnit.test( "caches plugin instance", function( assert ) {
-		$fixture.defaultPluginName();
+		$fixture.Calendar();
 		assert.ok(
-			$fixture.data( "plugin_defaultPluginName" ),
+			$fixture.data( "plugin_Calendar" ),
 			"has cached it into a jQuery data"
 		);
 	} );
 
 	QUnit.test( "enable custom config", function( assert ) {
-		$fixture.defaultPluginName( {
+		$fixture.Calendar( {
 			foo: "bar"
 		} );
 
-		var pluginData = $fixture.data( "plugin_defaultPluginName" );
+		var obj = {
+			foo: "bar"
+		};
+
+		assert.deepEqual(obj, {
+			foo: "bar"
+		}, "extend plugin settings");
+
+		var pluginData = $fixture.data( "plugin_Calendar" );
+
+		console.log("Settings: ", pluginData.settings);
 
 		assert.deepEqual(
 			pluginData.settings,
 			{
-				propertyName: "value",
+				"calendarHeaderAttributes": {
+		            "class": "dayLabels"
+		        },
+		        "cellAttributes": {
+		            "class": "dateCell"
+		        },
+		        "containerAttrs": {
+		            "class": "calendar-container"
+		        },
+		        "message": "New jQuery Plugin!",
+		        "monthSelectorAttributes": {
+		            "class": "month-selector"
+		        },
+		        "nextMonthClassName": "next",
+		        "nextMonthSelector": ".next",
+		        "nextButtonText": "Next",
+		        "onCellClick": function () { },
+		        "onNextMonthClick": function () { },
+		        "onPreviousMonthClick": function () { },
+		        // "onMonthSelect": function () { },
+		        // "onYearSelect": function () { },
+		        "previousMonthClassName": "prev",
+		        "previousMonthSelector": ".prev",
+		        "previousButtonText": "Previous",
+		        "rowAttributes": {
+		            "class": "calendar-row"
+		        },
+		        "selectedDate": new Date(),
+		        "tableAttributes": {
+		            "class": "calendar-table"
+		        },
+		        "textFieldAttributes": {
+		        	"type": "hidden",
+		        	"class": "calendar-date-field"
+		        },
+		        "yearSelectorAttributes": {
+		            "class": "year-selector"
+		        },
 				foo: "bar"
 			},
 			"extend plugin settings"
@@ -59,23 +105,23 @@
 
 	} );
 
-	QUnit.test( "changes the element text", function( assert ) {
-		$fixture.defaultPluginName();
+	// QUnit.test( "changes the element text", function( assert ) {
+	// 	$fixture.defaultPluginName();
 
-		assert.equal( $fixture.text(), "jQuery Boilerplate" );
-	} );
+	// 	assert.equal( $fixture.text(), "jQuery Boilerplate" );
+	// } );
 
-	QUnit.test(
-		"has #yourOtherFunction working as expected",
-		function( assert ) {
-			$fixture.defaultPluginName();
+	// QUnit.test(
+	// 	"has #yourOtherFunction working as expected",
+	// 	function( assert ) {
+	// 		$fixture.defaultPluginName();
 
-			var instance = $fixture.data( "plugin_defaultPluginName" ),
-				expectedText = "foobar";
+	// 		var instance = $fixture.data( "plugin_defaultPluginName" ),
+	// 			expectedText = "foobar";
 
-			instance.yourOtherFunction( expectedText );
-			assert.equal( $fixture.text(), expectedText );
-		}
-	);
+	// 		instance.yourOtherFunction( expectedText );
+	// 		assert.equal( $fixture.text(), expectedText );
+	// 	}
+	// );
 
 }( jQuery, QUnit ) );

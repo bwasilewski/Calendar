@@ -1,3 +1,11 @@
+/*
+ *  jquery-calendar - v1.0.0
+ *  A simple jquery Calendar plugin.
+ *  http://benwas.com
+ *
+ *  Made by Benjamin Wasilewski
+ *  Under MIT License
+ */
 // the semi-colon before function invocation is a safety net against concatenated
 // scripts and/or other plugins which may not be closed properly.
 ;( function( $, window, document, undefined ) {
@@ -167,15 +175,20 @@
                 that.updateCalendar(that.element, m, y);
 			},
 			handleCellClick: function (ev) {
-				var that = ev.data.context;
+				var that = ev.data.context
+					,$this = $(this)
+					,thisData = $this.data()
+					,dateObj = new Date(thisData.year, thisData.month, thisData.date);
 
             	$.each(that.cells, function (ind, val) {
             		$(val).removeClass('selected');
             	});
 
-            	$(this).addClass('selected');
-            	that.selectedDate = $(this);
-            	that.updateTextField( $(this).data() );
+            	$this.addClass('selected');
+            	that.selectedDate = $this;
+				that.selectedDateObj = dateObj;
+
+            	that.updateTextField( $this.data() );
             	that.settings.onCellClick(ev);
 			},
 			drawCalendar: function () {
@@ -288,11 +301,7 @@
 		        });
 			},
 			getFirstDay: function (m, y) {
-				var tempDate = new Date();
-
-		        tempDate.setFullYear(y);
-		        tempDate.setMonth(m);
-		        tempDate.setDate(1);
+				var tempDate = new Date(y, m, 1);
 
 		        return tempDate.getDay();
 			},
@@ -342,7 +351,8 @@
 			},
 			getSelectedDate: function () {
 				return {
-					'el': this.selectedDate
+					'el': this.selectedDate,
+					'date': this.settings.selectedDate
 				};
 			},
 			selectDate: function (date) {
